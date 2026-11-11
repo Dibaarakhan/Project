@@ -1,0 +1,1865 @@
+<!DOCTYPE html><html>
+<head>
+    <title>Tic Tac Toe Game</title><style>
+    body {
+        background-color: #202040;
+        color: white;
+        text-align: center;
+        font-family: Arial;
+    }
+
+    h1 {
+        color: yellow;
+        margin-top: 30px;
+    }
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        gap: 8px;
+        justify-content: center;
+        margin: 30px auto;
+    }
+
+    .cell {
+        width: 100px;
+        height: 100px;
+        background-color: white;
+        color: black;
+        font-size: 50px;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .cell:hover {
+        background-color: lightblue;
+    }
+
+    #status {
+        font-size: 22px;
+        color: yellow;
+    }
+
+    button.reset {
+        padding: 12px 25px;
+        background-color: orange;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+</style>
+
+</head><body><h1> TIC TAC TOE GAME </h1>
+
+<h2 id="status">Player X's Turn</h2>
+
+<div class="board">
+
+    <button class="cell" onclick="makeMove(0)"></button>
+    <button class="cell" onclick="makeMove(1)"></button>
+    <button class="cell" onclick="makeMove(2)"></button>
+
+    <button class="cell" onclick="makeMove(3)"></button>
+    <button class="cell" onclick="makeMove(4)"></button>
+    <button class="cell" onclick="makeMove(5)"></button>
+
+    <button class="cell" onclick="makeMove(6)"></button>
+    <button class="cell" onclick="makeMove(7)"></button>
+    <button class="cell" onclick="makeMove(8)"></button>
+
+</div>
+
+<button class="reset" onclick="resetGame()">
+    Restart Game
+</button>
+
+<script>
+
+    let currentPlayer = "X";
+
+    let gameBoard = ["", "", "", "", "", "", "", "", ""];
+
+    let gameActive = true;
+
+    const cells = document.querySelectorAll(".cell");
+
+    const status = document.getElementById("status");
+
+    // Winning combinations
+    const winningConditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ];
+
+    // Player move
+    function makeMove(index) {
+
+        if (gameBoard[index] !== "" || !gameActive) {
+            return;
+        }
+
+        gameBoard[index] = currentPlayer;
+
+        cells[index].innerHTML = currentPlayer;
+
+        checkWinner();
+
+    }
+
+    // Check winner
+    function checkWinner() {
+
+        let winner = false;
+
+        for (let condition of winningConditions) {
+
+            let a = condition[0];
+            let b = condition[1];
+            let c = condition[2];
+
+            if (
+                gameBoard[a] !== "" &&
+                gameBoard[a] === gameBoard[b] &&
+                gameBoard[b] === gameBoard[c]
+            ) {
+
+                winner = true;
+                break;
+
+            }
+        }
+
+        if (winner) {
+
+            status.innerHTML = "Player " + currentPlayer + " Wins! 🎉";
+
+            gameActive = false;
+
+            return;
+
+        }
+
+        if (!gameBoard.includes("")) {
+
+            status.innerHTML = "Game Draw! 🤝";
+
+            gameActive = false;
+
+            return;
+
+        }
+
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+        status.innerHTML = "Player " + currentPlayer + "'s Turn";
+
+    }
+
+    // Restart game
+    function resetGame() {
+
+        currentPlayer = "X";
+
+        gameBoard = ["", "", "", "", "", "", "", "", ""];
+
+        gameActive = true;
+
+        cells.forEach(function(cell) {
+
+            cell.innerHTML = "";
+
+        });
+
+        status.innerHTML = "Player X's Turn";
+
+    }
+
+</script>
+
+</body>
+</html>
+<!DOCTYPE html><html>
+<head>
+    <title>Snake Game</title><style>
+    body {
+        background-color: #202020;
+        color: white;
+        text-align: center;
+        font-family: Arial;
+    }
+
+    h1 {
+        color: lime;
+        margin-top: 25px;
+    }
+
+    canvas {
+        background-color: black;
+        border: 4px solid lime;
+    }
+
+    button {
+        background-color: lime;
+        color: black;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    #score {
+        color: yellow;
+        font-size: 22px;
+    }
+</style>
+
+</head><body><h1>🐍 SNAKE GAME 🐍</h1>
+
+<h2>Score: <span id="score">0</span></h2>
+
+<canvas id="game" width="400" height="400"></canvas>
+
+<br><br>
+
+<button onclick="restartGame()">Restart Game</button>
+
+<p>Use Arrow Keys to move the snake.</p>
+
+<script>
+
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const box = 20;
+
+    let snake;
+    let food;
+    let direction;
+    let score;
+    let gameOver;
+    let gameLoop;
+
+    // Start game
+    function startGame() {
+
+        snake = [
+            { x: 200, y: 200 },
+            { x: 180, y: 200 },
+            { x: 160, y: 200 }
+        ];
+
+        food = {
+            x: 100,
+            y: 100
+        };
+
+        direction = "RIGHT";
+
+        score = 0;
+
+        gameOver = false;
+
+        document.getElementById("score").innerHTML = score;
+
+        clearInterval(gameLoop);
+
+        gameLoop = setInterval(drawGame, 120);
+    }
+
+    // Keyboard controls
+    document.addEventListener("keydown", function(event) {
+
+        if (event.key === "ArrowUp" && direction !== "DOWN") {
+            direction = "UP";
+        }
+
+        else if (event.key === "ArrowDown" && direction !== "UP") {
+            direction = "DOWN";
+        }
+
+        else if (event.key === "ArrowLeft" && direction !== "RIGHT") {
+            direction = "LEFT";
+        }
+
+        else if (event.key === "ArrowRight" && direction !== "LEFT") {
+            direction = "RIGHT";
+        }
+
+    });
+
+    // Draw snake and food
+    function drawGame() {
+
+        if (gameOver) {
+            return;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw snake
+        snake.forEach(function(part, index) {
+
+            ctx.fillStyle = index === 0 ? "lime" : "green";
+
+            ctx.fillRect(part.x, part.y, box, box);
+
+            ctx.strokeStyle = "black";
+
+            ctx.strokeRect(part.x, part.y, box, box);
+
+        });
+
+        // Draw food
+        ctx.fillStyle = "red";
+
+        ctx.fillRect(food.x, food.y, box, box);
+
+        // Snake movement
+        let headX = snake[0].x;
+        let headY = snake[0].y;
+
+        if (direction === "UP") {
+            headY -= box;
+        }
+
+        if (direction === "DOWN") {
+            headY += box;
+        }
+
+        if (direction === "LEFT") {
+            headX -= box;
+        }
+
+        if (direction === "RIGHT") {
+            headX += box;
+        }
+
+        let newHead = {
+            x: headX,
+            y: headY
+        };
+
+        // Check wall collision
+        if (
+            headX < 0 ||
+            headY < 0 ||
+            headX >= canvas.width ||
+            headY >= canvas.height
+        ) {
+
+            endGame();
+            return;
+
+        }
+
+        // Check food collision
+        let ateFood = headX === food.x && headY === food.y;
+
+        // Check body collision
+        let bodyToCheck = ateFood ? snake : snake.slice(0, -1);
+
+        for (let part of bodyToCheck) {
+
+            if (headX === part.x && headY === part.y) {
+
+                endGame();
+                return;
+
+            }
+
+        }
+
+        snake.unshift(newHead);
+
+        // Eat food
+        if (ateFood) {
+
+            score += 10;
+
+            document.getElementById("score").innerHTML = score;
+
+            createFood();
+
+        } else {
+
+            snake.pop();
+
+        }
+
+    }
+
+    // Create new food
+    function createFood() {
+
+        do {
+
+            food.x = Math.floor(Math.random() * 20) * box;
+
+            food.y = Math.floor(Math.random() * 20) * box;
+
+        } while (
+            snake.some(part => part.x === food.x && part.y === food.y)
+        );
+
+    }
+
+    // Game over
+    function endGame() {
+
+        gameOver = true;
+
+        clearInterval(gameLoop);
+
+        ctx.fillStyle = "white";
+
+        ctx.font = "35px Arial";
+
+        ctx.fillText("GAME OVER", 95, 190);
+
+        ctx.font = "20px Arial";
+
+        ctx.fillText("Your Score: " + score, 135, 230);
+
+    }
+
+    // Restart game
+    function restartGame() {
+
+        startGame();
+
+    }
+
+    // Run game
+    startGame();
+
+</script>
+
+</body>
+</html>
+<!DOCTYPE html><html>
+<head><title>Memory Test Game</title>
+
+<style>
+
+    body {
+        background-color: #202040;
+        color: white;
+        text-align: center;
+        font-family: Arial;
+    }
+
+    h1 {
+        color: yellow;
+        margin-top: 30px;
+    }
+
+    .game-board {
+        display: grid;
+        grid-template-columns: repeat(4, 80px);
+        gap: 10px;
+        justify-content: center;
+        margin: 30px auto;
+    }
+
+    .card {
+        width: 80px;
+        height: 80px;
+        background-color: #00bcd4;
+        color: white;
+        font-size: 35px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .card:hover {
+        background-color: #008c9e;
+    }
+
+    .matched {
+        background-color: green;
+        cursor: default;
+    }
+
+    #message {
+        color: yellow;
+        font-size: 22px;
+    }
+
+    button.restart {
+        padding: 12px 25px;
+        background-color: orange;
+        color: black;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+</style>
+
+</head><body><h1>🧠 MEMORY TEST GAME 🧠</h1>
+
+<h2>Find the Matching Cards!</h2>
+
+<h3>Moves: <span id="moves">0</span></h3>
+
+<h3>Matches: <span id="matches">0</span> / 8</h3>
+
+<div class="game-board" id="gameBoard"></div>
+
+<h2 id="message">Remember the cards!</h2>
+
+<button class="restart" onclick="restartGame()">
+    Restart Game
+</button>
+
+<script>
+
+    // Card symbols
+    const symbols = [
+        "🍎", "🍌", "🍇", "🍒",
+        "🍎", "🍌", "🍇", "🍒",
+        "🍉", "🍍", "🥝", "🍓",
+        "🍉", "🍍", "🥝", "🍓"
+    ];
+
+    let firstCard = null;
+    let secondCard = null;
+
+    let moves = 0;
+    let matches = 0;
+
+    let lockBoard = false;
+
+    let matchedCards = [];
+
+    const gameBoard = document.getElementById("gameBoard");
+
+    // Shuffle cards
+    function shuffleCards(array) {
+
+        for (let i = array.length - 1; i > 0; i--) {
+
+            let j = Math.floor(Math.random() * (i + 1));
+
+            [array[i], array[j]] = [array[j], array[i]];
+
+        }
+
+        return array;
+
+    }
+
+    // Create game
+    function createGame() {
+
+        gameBoard.innerHTML = "";
+
+        let shuffledSymbols = shuffleCards([...symbols]);
+
+        shuffledSymbols.forEach(function(symbol, index) {
+
+            let card = document.createElement("button");
+
+            card.classList.add("card");
+
+            card.innerHTML = "?";
+
+            card.dataset.symbol = symbol;
+
+            card.dataset.index = index;
+
+            card.onclick = function() {
+
+                flipCard(card);
+
+            };
+
+            gameBoard.appendChild(card);
+
+        });
+
+    }
+
+    // Flip card
+    function flipCard(card) {
+
+        if (
+            lockBoard ||
+            card.classList.contains("matched") ||
+            card === firstCard
+        ) {
+
+            return;
+
+        }
+
+        card.innerHTML = card.dataset.symbol;
+
+        if (firstCard === null) {
+
+            firstCard = card;
+
+            return;
+
+        }
+
+        secondCard = card;
+
+        moves++;
+
+        document.getElementById("moves").innerHTML = moves;
+
+        checkMatch();
+
+    }
+
+    // Check matching cards
+    function checkMatch() {
+
+        if (
+            firstCard.dataset.symbol ===
+            secondCard.dataset.symbol
+        ) {
+
+            firstCard.classList.add("matched");
+
+            secondCard.classList.add("matched");
+
+            matches++;
+
+            document.getElementById("matches").innerHTML = matches;
+
+            document.getElementById("message").innerHTML =
+                "Great! Correct Match 🎉";
+
+            resetCards();
+
+            if (matches === 8) {
+
+                document.getElementById("message").innerHTML =
+                    "Congratulations! You Won! 🏆";
+
+            }
+
+        } else {
+
+            lockBoard = true;
+
+            document.getElementById("message").innerHTML =
+                "Wrong Match! Try Again.";
+
+            setTimeout(function() {
+
+                firstCard.innerHTML = "?";
+
+                secondCard.innerHTML = "?";
+
+                resetCards();
+
+            }, 1000);
+
+        }
+
+    }
+
+    // Reset selected cards
+    function resetCards() {
+
+        firstCard = null;
+
+        secondCard = null;
+
+        lockBoard = false;
+
+    }
+
+    // Restart game
+    function restartGame() {
+
+        moves = 0;
+
+        matches = 0;
+
+        firstCard = null;
+
+        secondCard = null;
+
+        lockBoard = false;
+
+        document.getElementById("moves").innerHTML = 0;
+
+        document.getElementById("matches").innerHTML = 0;
+
+        document.getElementById("message").innerHTML =
+            "Find the matching cards!";
+
+        createGame();
+
+    }
+
+    // Start game
+    createGame();
+
+</script>
+
+</body>
+</html>
+<!DOCTYPE html><html>
+<head><title>Ultimate Tic Tac Toe</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #141e30, #243b55);
+        color: white;
+        text-align: center;
+    }
+
+    h1 {
+        color: #00ffff;
+        font-size: 35px;
+        text-shadow: 0 0 15px cyan;
+    }
+
+    .container {
+        max-width: 450px;
+        margin: auto;
+        padding: 20px;
+        background: rgba(255,255,255,0.10);
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(0,255,255,0.3);
+    }
+
+    .subtitle {
+        color: #ddd;
+    }
+
+    .scoreboard {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+        gap: 10px;
+    }
+
+    .score-box {
+        background: #182c45;
+        padding: 15px;
+        border-radius: 12px;
+        width: 45%;
+        border: 2px solid cyan;
+    }
+
+    .score-box h2 {
+        color: cyan;
+    }
+
+    #status {
+        font-size: 22px;
+        color: yellow;
+        min-height: 30px;
+        margin: 20px 0;
+    }
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 20px auto;
+        max-width: 330px;
+    }
+
+    .cell {
+        width: 100%;
+        aspect-ratio: 1;
+        font-size: 55px;
+        font-weight: bold;
+        border: 2px solid cyan;
+        border-radius: 15px;
+        background: #102a43;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .cell:hover:not(:disabled) {
+        background: #155e75;
+        transform: scale(1.05);
+    }
+
+    .cell.x {
+        color: #00ffff;
+        text-shadow: 0 0 15px cyan;
+    }
+
+    .cell.o {
+        color: #ff69b4;
+        text-shadow: 0 0 15px pink;
+    }
+
+    .cell.winner {
+        background: #16803c;
+        border-color: lime;
+        animation: glow 0.7s infinite alternate;
+    }
+
+    @keyframes glow {
+        from {
+            box-shadow: 0 0 5px lime;
+        }
+
+        to {
+            box-shadow: 0 0 20px lime;
+        }
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    button.action {
+        padding: 12px 18px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(45deg, #00c6ff, #0072ff);
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button.action:hover {
+        transform: scale(1.05);
+    }
+
+    .sound-btn {
+        background: linear-gradient(45deg, #f7971e, #ffd200) !important;
+        color: black !important;
+    }
+
+    .footer {
+        color: #bbb;
+        font-size: 13px;
+        margin-top: 25px;
+    }
+
+    @media(max-width: 400px) {
+        h1 {
+            font-size: 27px;
+        }
+
+        .cell {
+            font-size: 42px;
+        }
+    }
+
+</style>
+
+</head><body><div class="container">
+
+    <h1>🎮 TIC TAC TOE 🎮</h1>
+
+    <p class="subtitle">
+        Welcome to the Ultimate Gaming Challenge!
+    </p>
+
+    <!-- Scoreboard -->
+
+    <div class="scoreboard">
+
+        <div class="score-box">
+            <h2>Player X</h2>
+            <h3 id="scoreX">0</h3>
+        </div>
+
+        <div class="score-box">
+            <h2>Player O</h2>
+            <h3 id="scoreO">0</h3>
+        </div>
+
+    </div>
+
+    <!-- Game Status -->
+
+    <h2 id="status">Player X's Turn</h2>
+
+    <!-- Game Board -->
+
+    <div class="board" id="board">
+
+        <button class="cell" data-index="0"></button>
+        <button class="cell" data-index="1"></button>
+        <button class="cell" data-index="2"></button>
+
+        <button class="cell" data-index="3"></button>
+        <button class="cell" data-index="4"></button>
+        <button class="cell" data-index="5"></button>
+
+        <button class="cell" data-index="6"></button>
+        <button class="cell" data-index="7"></button>
+        <button class="cell" data-index="8"></button>
+
+    </div>
+
+    <!-- Buttons -->
+
+    <div class="buttons">
+
+        <button class="action" onclick="restartGame()">
+            🔄 Restart
+        </button>
+
+        <button class="action sound-btn" onclick="toggleSound()">
+            🔊 Sound ON
+        </button>
+
+        <button class="action" onclick="resetScores()">
+            🏆 Reset Scores
+        </button>
+
+    </div>
+
+    <p class="footer">
+        Developed using HTML, CSS and JavaScript
+    </p>
+
+</div>
+
+
+<script>
+
+    // Game variables
+
+    let currentPlayer = "X";
+
+    let gameBoard = ["", "", "", "", "", "", "", "", ""];
+
+    let gameActive = true;
+
+    let scoreX = 0;
+
+    let scoreO = 0;
+
+    let soundEnabled = true;
+
+    const cells = document.querySelectorAll(".cell");
+
+    const statusText = document.getElementById("status");
+
+
+    // Winning combinations
+
+    const winningConditions = [
+
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+
+        [0, 4, 8],
+        [2, 4, 6]
+
+    ];
+
+
+    // Voice announcement
+
+    function speak(message) {
+
+        if (!soundEnabled) return;
+
+        if ("speechSynthesis" in window) {
+
+            window.speechSynthesis.cancel();
+
+            let voice = new SpeechSynthesisUtterance(message);
+
+            voice.rate = 1;
+
+            voice.pitch = 1.2;
+
+            voice.volume = 1;
+
+            window.speechSynthesis.speak(voice);
+
+        }
+
+    }
+
+
+    // Sound effects using Web Audio API
+
+    let audioContext;
+
+    function playTone(frequency, duration, type = "sine") {
+
+        if (!soundEnabled) return;
+
+        try {
+
+            audioContext = audioContext ||
+                new (window.AudioContext || window.webkitAudioContext)();
+
+            if (audioContext.state === "suspended") {
+                audioContext.resume();
+            }
+
+            let oscillator = audioContext.createOscillator();
+
+            let gain = audioContext.createGain();
+
+            oscillator.type = type;
+
+            oscillator.frequency.value = frequency;
+
+            gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.001,
+                audioContext.currentTime + duration
+            );
+
+            oscillator.connect(gain);
+
+            gain.connect(audioContext.destination);
+
+            oscillator.start();
+
+            oscillator.stop(audioContext.currentTime + duration);
+
+        } catch (error) {
+
+            console.log("Audio unavailable", error);
+
+        }
+
+    }
+
+
+    // Move sound
+
+    function moveSound() {
+
+        playTone(500, 0.12);
+
+    }
+
+
+    // Winning sound
+
+    function winnerSound() {
+
+        playTone(523, 0.2);
+
+        setTimeout(() => playTone(659, 0.2), 200);
+
+        setTimeout(() => playTone(784, 0.3), 400);
+
+        setTimeout(() => playTone(1046, 0.5), 600);
+
+    }
+
+
+    // Losing sound
+
+    function losingSound() {
+
+        playTone(400, 0.3, "triangle");
+
+        setTimeout(() => playTone(300, 0.3, "triangle"), 300);
+
+        setTimeout(() => playTone(200, 0.5, "triangle"), 600);
+
+    }
+
+
+    // Draw sound
+
+    function drawSound() {
+
+        playTone(450, 0.2);
+
+        setTimeout(() => playTone(450, 0.2), 250);
+
+    }
+
+
+    // Player move
+
+    function makeMove(index) {
+
+        if (!gameActive || gameBoard[index] !== "") {
+
+            return;
+
+        }
+
+        gameBoard[index] = currentPlayer;
+
+        cells[index].textContent = currentPlayer;
+
+        cells[index].classList.add(currentPlayer.toLowerCase());
+
+        moveSound();
+
+        checkWinner();
+
+    }
+
+
+    // Check winner
+
+    function checkWinner() {
+
+        let winningLine = null;
+
+        for (let condition of winningConditions) {
+
+            let [a, b, c] = condition;
+
+            if (
+
+                gameBoard[a] !== "" &&
+
+                gameBoard[a] === gameBoard[b] &&
+
+                gameBoard[b] === gameBoard[c]
+
+            ) {
+
+                winningLine = condition;
+
+                break;
+
+            }
+
+        }
+
+
+        // If a player wins
+
+        if (winningLine) {
+
+            gameActive = false;
+
+            winningLine.forEach(index => {
+
+                cells[index].classList.add("winner");
+
+            });
+
+            if (currentPlayer === "X") {
+
+                scoreX++;
+
+                document.getElementById("scoreX").textContent = scoreX;
+
+            } else {
+
+                scoreO++;
+
+                document.getElementById("scoreO").textContent = scoreO;
+
+            }
+
+            statusText.textContent = "🎉 Player " + currentPlayer + " Wins!";
+
+            winnerSound();
+
+            speak("Congratulations! Player " + currentPlayer + " wins! Amazing game!");
+
+            setTimeout(() => {
+
+                speak("Player " +
+                    (currentPlayer === "X" ? "O" : "X") +
+                    ", better luck next time!");
+
+            }, 2500);
+
+            return;
+
+        }
+
+
+        // Check draw
+
+        if (!gameBoard.includes("")) {
+
+            gameActive = false;
+
+            statusText.textContent = "🤝 Game Draw!";
+
+            drawSound();
+
+            speak("It's a draw! Both players played very well!");
+
+            return;
+
+        }
+
+
+        // Change player
+
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+        statusText.textContent = "Player " + currentPlayer + "'s Turn";
+
+        speak("Player " + currentPlayer + ", your turn!");
+
+    }
+
+
+    // Restart game
+
+    function restartGame() {
+
+        gameBoard = ["", "", "", "", "", "", "", "", ""];
+
+        currentPlayer = "X";
+
+        gameActive = true;
+
+        cells.forEach(cell => {
+
+            cell.textContent = "";
+
+            cell.classList.remove("x", "o", "winner");
+
+        });
+
+        statusText.textContent = "Player X's Turn";
+
+        if (soundEnabled) {
+
+            playTone(600, 0.15);
+
+            speak("New game started! Player X, your turn!");
+
+        }
+
+    }
+
+
+    // Sound ON/OFF
+
+    function toggleSound() {
+
+        soundEnabled = !soundEnabled;
+
+        document.querySelector(".sound-btn").textContent =
+            soundEnabled ? "🔊 Sound ON" : "🔇 Sound OFF";
+
+        if (soundEnabled) {
+
+            speak("Sound is on!");
+
+        } else if ("speechSynthesis" in window) {
+
+            window.speechSynthesis.cancel();
+
+        }
+
+    }
+
+
+    // Reset scoreboard
+
+    function resetScores() {
+
+        scoreX = 0;
+
+        scoreO = 0;
+
+        document.getElementById("scoreX").textContent = 0;
+
+        document.getElementById("scoreO").textContent = 0;
+
+        restartGame();
+
+        speak("Scores have been reset!");
+
+    }
+
+
+    // Add click events
+
+    cells.forEach((cell, index) => {
+
+        cell.addEventListener("click", function() {
+
+            makeMove(index);
+
+        });
+
+    });
+
+
+    // Welcome message
+
+    window.addEventListener("load", function() {
+
+        setTimeout(() => {
+
+            speak("Welcome to Tic Tac Toe! Player X, start the game!");
+
+        }, 500);
+
+    });
+
+</script>
+
+</body>
+</html>
+<!DOCTYPE html><html>
+<head>
+    <title>Ultimate Tic Tac Toe</title><meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    body {
+        background: linear-gradient(135deg, #141e30, #243b55);
+        color: white;
+        font-family: Arial;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 400px;
+        margin: auto;
+        padding: 20px;
+        background: #182b45;
+        border: 2px solid cyan;
+        border-radius: 20px;
+        box-shadow: 0 0 20px cyan;
+    }
+
+    h1 {
+        color: cyan;
+        text-shadow: 0 0 10px cyan;
+    }
+
+    .scoreboard {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+    }
+
+    .score {
+        background: #263c59;
+        padding: 10px;
+        border-radius: 12px;
+        width: 45%;
+    }
+
+    #status {
+        color: yellow;
+        min-height: 30px;
+    }
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 20px auto;
+    }
+
+    .cell {
+        height: 100px;
+        background: #101d35;
+        color: white;
+        border: 2px solid cyan;
+        border-radius: 12px;
+        font-size: 50px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .cell.x {
+        color: cyan;
+    }
+
+    .cell.o {
+        color: #ff69b4;
+    }
+
+    .cell.winner {
+        background: green;
+        box-shadow: 0 0 20px lime;
+    }
+
+    button.action {
+        padding: 12px 15px;
+        margin: 5px;
+        border: none;
+        border-radius: 10px;
+        background: #00c6ff;
+        color: black;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:disabled {
+        cursor: default;
+    }
+
+    #result {
+        color: lime;
+        font-size: 22px;
+    }
+
+</style>
+
+</head><body><div class="container"><h1>🎮 TIC TAC TOE</h1>
+
+<p>Ultimate X and O Challenge</p>
+
+<div class="scoreboard">
+
+    <div class="score">
+        <h2>Player X</h2>
+        <h2 id="scoreX">0</h2>
+    </div>
+
+    <div class="score">
+        <h2>Player O</h2>
+        <h2 id="scoreO">0</h2>
+    </div>
+
+</div>
+
+<h2 id="status">Player X's Turn</h2>
+
+<div class="board" id="board">
+
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+
+</div>
+
+<h2 id="result"></h2>
+
+<button class="action" onclick="restartGame()">
+    🔄 Restart
+</button>
+
+<button class="action" onclick="toggleSound()">
+    🔊 Sound ON
+</button>
+
+<button class="action" onclick="resetScore()">
+    🏆 Reset Score
+</button>
+
+</div><script>
+
+// Game variables
+
+let currentPlayer = "X";
+
+let gameBoard = ["", "", "", "", "", "", "", "", ""];
+
+let gameActive = true;
+
+let scoreX = 0;
+
+let scoreO = 0;
+
+let soundEnabled = true;
+
+let audioContext = null;
+
+const cells = document.querySelectorAll(".cell");
+
+
+// Winning combinations
+
+const winningConditions = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
+];
+
+
+// Initialize sound
+
+function initAudio() {
+
+    if (!audioContext) {
+        audioContext = new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
+    }
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
+}
+
+
+// Play sound
+
+function playTone(frequency, duration, type = "sine") {
+
+    if (!soundEnabled) return;
+
+    initAudio();
+
+    let oscillator = audioContext.createOscillator();
+
+    let gain = audioContext.createGain();
+
+    oscillator.type = type;
+
+    oscillator.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(
+        0.15,
+        audioContext.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + duration
+    );
+
+    oscillator.connect(gain);
+
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+
+    oscillator.stop(audioContext.currentTime + duration);
+
+}
+
+
+// Move sound
+
+function moveSound() {
+
+    playTone(600, 0.15);
+
+}
+
+
+// Winner sound
+
+function winnerSound() {
+
+    playTone(523, 0.3);
+
+    setTimeout(() => playTone(659, 0.3), 250);
+
+    setTimeout(() => playTone(784, 0.3), 500);
+
+    setTimeout(() => playTone(1046, 0.5), 750);
+
+}
+
+
+// Loser sound
+
+function loserSound() {
+
+    playTone(400, 0.3, "triangle");
+
+    setTimeout(() => playTone(300, 0.3, "triangle"), 300);
+
+    setTimeout(() => playTone(200, 0.5, "triangle"), 600);
+
+}
+
+
+// Voice announcement
+
+function speak(message) {
+
+    if (!soundEnabled) return;
+
+    if (!("speechSynthesis" in window)) return;
+
+    window.speechSynthesis.cancel();
+
+    let voice = new SpeechSynthesisUtterance(message);
+
+    voice.rate = 1;
+
+    voice.pitch = 1.1;
+
+    window.speechSynthesis.speak(voice);
+
+}
+
+
+// Player move
+
+function makeMove(index) {
+
+    if (!gameActive || gameBoard[index] !== "") {
+        return;
+    }
+
+    initAudio();
+
+    gameBoard[index] = currentPlayer;
+
+    cells[index].textContent = currentPlayer;
+
+    cells[index].classList.add(currentPlayer.toLowerCase());
+
+    cells[index].disabled = true;
+
+    moveSound();
+
+    checkWinner();
+
+}
+
+
+// Check winner
+
+function checkWinner() {
+
+    let winningPattern = null;
+
+    for (let pattern of winningConditions) {
+
+        let [a, b, c] = pattern;
+
+        if (
+            gameBoard[a] !== "" &&
+            gameBoard[a] === gameBoard[b] &&
+            gameBoard[b] === gameBoard[c]
+        ) {
+
+            winningPattern = pattern;
+
+            break;
+
+        }
+
+    }
+
+
+    // Winner condition
+
+    if (winningPattern !== null) {
+
+        gameActive = false;
+
+        winningPattern.forEach(index => {
+
+            cells[index].classList.add("winner");
+
+        });
+
+        cells.forEach(cell => cell.disabled = true);
+
+        if (currentPlayer === "X") {
+
+            scoreX++;
+
+            document.getElementById("scoreX").textContent = scoreX;
+
+        } else {
+
+            scoreO++;
+
+            document.getElementById("scoreO").textContent = scoreO;
+
+        }
+
+        let loser = currentPlayer === "X" ? "O" : "X";
+
+        document.getElementById("status").textContent =
+            "🏆 Player " + currentPlayer + " Wins!";
+
+        document.getElementById("result").textContent =
+            "🎉 Congratulations!";
+
+        winnerSound();
+
+        speak("Congratulations! Player " + currentPlayer + " wins!");
+
+        setTimeout(function() {
+
+            loserSound();
+
+            speak("Player " + loser + " loses. Better luck next time!");
+
+        }, 2500);
+
+        return;
+
+    }
+
+
+    // Draw condition
+
+    if (!gameBoard.includes("")) {
+
+        gameActive = false;
+
+        document.getElementById("status").textContent =
+            "🤝 Game Draw!";
+
+        document.getElementById("result").textContent =
+            "Both players played well!";
+
+        playTone(450, 0.5);
+
+        speak("The game is a draw!");
+
+        return;
+
+    }
+
+
+    // Change player
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+    document.getElementById("status").textContent =
+        "Player " + currentPlayer + "'s Turn";
+
+    speak("Player " + currentPlayer + ", your turn!");
+
+}
+
+
+// Restart game
+
+function restartGame() {
+
+    gameBoard = ["", "", "", "", "", "", "", "", ""];
+
+    currentPlayer = "X";
+
+    gameActive = true;
+
+    cells.forEach(cell => {
+
+        cell.textContent = "";
+
+        cell.disabled = false;
+
+        cell.className = "cell";
+
+    });
+
+    document.getElementById("status").textContent =
+        "Player X's Turn";
+
+    document.getElementById("result").textContent = "";
+
+    if (soundEnabled) {
+
+        playTone(700, 0.2);
+
+        speak("New game started. Player X, your turn!");
+
+    }
+
+}
+
+
+// Reset score
+
+function resetScore() {
+
+    scoreX = 0;
+
+    scoreO = 0;
+
+    document.getElementById("scoreX").textContent = 0;
+
+    document.getElementById("scoreO").textContent = 0;
+
+    restartGame();
+
+}
+
+
+// Sound ON/OFF
+
+function toggleSound() {
+
+    soundEnabled = !soundEnabled;
+
+    document.querySelectorAll(".action")[1].textContent =
+        soundEnabled ? "🔊 Sound ON" : "🔇 Sound OFF";
+
+    if (!soundEnabled && "speechSynthesis" in window) {
+
+        window.speechSynthesis.cancel();
+
+    }
+
+    if (soundEnabled) {
+
+        initAudio();
+
+        speak("Sound is on!");
+
+    }
+
+}
+
+
+// Click events
+
+cells.forEach((cell, index) => {
+
+    cell.addEventListener("click", function() {
+
+        makeMove(index);
+
+    });
+
+});
+
+</script></body>
+</html>
